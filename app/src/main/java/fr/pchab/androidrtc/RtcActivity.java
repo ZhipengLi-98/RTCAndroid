@@ -20,10 +20,14 @@ import android.widget.Toast;
 import org.webrtc.ScreenCapturerAndroid;
 import org.webrtc.VideoCapturer;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import android.database.Cursor;
 import android.provider.MediaStore;
@@ -32,6 +36,7 @@ import static android.content.ContentValues.TAG;
 
 public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
     private WebRtcClient mWebRtcClient;
+    private SocketServer mSocketServer;
     private static final int CAPTURE_PERMISSION_REQUEST_CODE = 1;
     //    private EglBase rootEglBase;
     private static Intent mMediaProjectionPermissionResultData;
@@ -42,8 +47,6 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
     private static final String[] MANDATORY_PERMISSIONS = {"android.permission.MODIFY_AUDIO_SETTINGS",
             "android.permission.RECORD_AUDIO", "android.permission.INTERNET"};
 
-    //    private SurfaceViewRenderer pipRenderer;
-//    private SurfaceViewRenderer fullscreenRenderer;
     public static int sDeviceWidth;
     public static int sDeviceHeight;
     public static final int SCREEN_RESOLUTION_SCALE = 2;
@@ -52,10 +55,12 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
     ArrayList names= null;
     List<Map<String, Object>> listItems;
 
+    public static RtcActivity instance;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        instance = this;
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().addFlags(
                 WindowManager.LayoutParams.FLAG_FULLSCREEN
@@ -84,6 +89,7 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
         // Check for mandatory permissions.
         for (String permission : MANDATORY_PERMISSIONS) {
             if (checkCallingOrSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+                System.out.println(permission);
                 setResult(RESULT_CANCELED);
                 finish();
                 return;
@@ -94,7 +100,8 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
         } else {
             init();
         }
-        GetImagesPath();
+        // GetImagesPath();
+
     }
 
     void GetImagesPath() {
@@ -125,7 +132,6 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
             listItems.add(map);
         }
     }
-
 
     @TargetApi(21)
     private void startScreenCapture() {
@@ -171,6 +177,8 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
                         "OPUS", false, false, false, false, false, false, false, false, null);
 //        mWebRtcClient = new WebRtcClient(getApplicationContext(), this, pipRenderer, fullscreenRenderer, createScreenCapturer(), peerConnectionParameters);
         mWebRtcClient = new WebRtcClient(getApplicationContext(), this, createScreenCapturer(), peerConnectionParameters);
+        mSocketServer = new SocketServer(4000, this, this.getIntent());
+        new Thread(() -> mSocketServer.startService()).start();
     }
 
     public void report(String info) {

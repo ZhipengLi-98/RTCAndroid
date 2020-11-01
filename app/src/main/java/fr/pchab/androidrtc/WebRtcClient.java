@@ -99,6 +99,7 @@ public class WebRtcClient {
                     SessionDescription.Type.fromCanonicalForm(payload.optString("type")),
                     payload.optString("sdp")
             );
+
             peer.pc.setRemoteDescription(peer, sdp);
             peer.pc.createAnswer(peer, mPeerConnConstraints);
         }
