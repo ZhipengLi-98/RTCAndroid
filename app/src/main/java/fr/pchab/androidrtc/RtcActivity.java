@@ -15,6 +15,8 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import org.webrtc.ScreenCapturerAndroid;
@@ -56,6 +58,8 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
     List<Map<String, Object>> listItems;
 
     public static RtcActivity instance;
+
+    private WebView webView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -100,6 +104,19 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
         } else {
             init();
         }
+//        webView = (WebView) findViewById(R.id.web_view);
+//        //WebView加载web资源
+//        webView.loadUrl("http://baidu.com");
+//        //覆盖WebView默认使用第三方或系统默认浏览器打开网页的行为，使网页用WebView打开
+//        webView.setWebViewClient(new WebViewClient(){
+//            @Override
+//            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+//                // TODO Auto-generated method stub
+//                //返回值是true的时候控制去WebView打开，为false调用系统浏览器或第三方浏览器
+//                view.loadUrl(url);
+//                return true;
+//            }
+//        });
         // GetImagesPath();
 
     }
@@ -163,6 +180,7 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
             return;
         mMediaProjectionPermissionResultCode = resultCode;
         mMediaProjectionPermissionResultData = data;
+        Log.d(TAG, "onActivityResult");
         init();
     }
 
@@ -177,8 +195,8 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
                         "OPUS", false, false, false, false, false, false, false, false, null);
 //        mWebRtcClient = new WebRtcClient(getApplicationContext(), this, pipRenderer, fullscreenRenderer, createScreenCapturer(), peerConnectionParameters);
         mWebRtcClient = new WebRtcClient(getApplicationContext(), this, createScreenCapturer(), peerConnectionParameters);
-        mSocketServer = new SocketServer(4000, this, this.getIntent());
-        new Thread(() -> mSocketServer.startService()).start();
+//        mSocketServer = new SocketServer(4000, this, this.getIntent());
+//        new Thread(() -> mSocketServer.startService()).start();
     }
 
     public void report(String info) {
@@ -205,6 +223,7 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
 
     @Override
     public void onReady(String callId) {
+        Log.d(TAG, "onReady");
         mWebRtcClient.start(STREAM_NAME_PREFIX);
     }
 

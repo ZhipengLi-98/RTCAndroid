@@ -179,7 +179,7 @@ public class SocketServer {
                         Log.i("res", "Toast result " + temp);
                         Utility.runInMain(AccService.instance, ()->Toast.makeText(AccService.instance, result == null? "保存失败": "【保存结果】 " + result, Toast.LENGTH_LONG).show());
 
-                        File file = new File("/storage/emulated/0"+ temp.substring(7) + "/");
+                        File file = new File("`/storage/emulated/0`"+ temp.substring(7) + "/");
                         List<File> fs = new ArrayList<File>();
                         for (File f : file.listFiles()) {
                             fs.add(f);

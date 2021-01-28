@@ -46,6 +46,10 @@ import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 
+//import io.socket.client.IO;
+//import io.socket.client.Socket;
+//import io.socket.emitter.Emitter;
+
 public class WebRtcClient {
 
     public static final String VIDEO_TRACK_ID = "ARDAMSv0";
@@ -198,6 +202,7 @@ public class WebRtcClient {
         public Emitter.Listener onId = new Emitter.Listener() {
             @Override
             public void call(Object... args) {
+                Log.d(TAG, "receive onId");
                 String id = (String) args[0];
                 mListener.onReady(id);
                 mListener.onStatusChanged("READY");
@@ -362,6 +367,19 @@ public class WebRtcClient {
                 Log.d(TAG, "socket state error");
             }
         });
+        mSocket.on(Socket.EVENT_CONNECT_TIMEOUT, new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                Log.d(TAG, "socket state timeout");
+            }
+        });
+        mSocket.on(Socket.EVENT_CONNECT_ERROR, new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                Log.d(TAG, "socket state connect_error");
+                Log.e(TAG, args[0].toString());
+            }
+        });
         mSocket.connect();
         Log.d(TAG, "socket start connect");
 
@@ -406,6 +424,7 @@ public class WebRtcClient {
      */
     public void start(String name) {
         initScreenCapturStream();
+        Log.d(TAG, "client start");
         try {
             JSONObject message = new JSONObject();
             message.put("name", name);
@@ -435,6 +454,4 @@ public class WebRtcClient {
 //        mListener.onLocalStream(mLocalMediaStream);
         mListener.onStatusChanged("STREAMING");
     }
-
-
 }
